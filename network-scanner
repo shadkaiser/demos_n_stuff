@@ -1,0 +1,40 @@
+#!/usr/bin/python3
+
+import scapy.all as scapy
+import argparse
+
+
+def get_ip():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-r", "--range", dest="ip_range", help="Enter the ip range you want to scan")
+    result = parser.parse_args()
+
+    if not result.ip_range:
+        print("Enter the -r argument, --help for help")
+
+    return result.ip_range
+
+
+def scan(ip):
+    arp_request = scapy.ARP(pdst=ip)
+    broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
+    arp_request_broadcast = broadcast/arp_request
+    answered_list = scapy.srp(arp_request_broadcast, timeout=1, verbose=False)[0]
+
+    client_list = []
+    for element in answered_list:
+        network = {"IP": element[1].psrc, "MAC": element[1].hwsrc}
+        client_list.append(network)
+    return client_list
+
+def print_result(client_list):
+    print("IP\t\t\tMAC Address\n-------------------------------")
+
+    for item in client_list:
+        print(item["IP"] + "\t\t" + item["MAC"])
+
+
+
+ip = get_ip()
+ip_list = scan(ip)
+print_result(ip_list)
