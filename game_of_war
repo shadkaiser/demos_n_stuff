@@ -1,0 +1,142 @@
+#!/usr/bin/python3
+
+class Deck:
+
+
+    user_deck = []
+    computer_deck = []
+
+    def __init__(self):
+        suits = ["Hearts", "Diamonds", "Clubs", "Spades"]
+        value = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+        deck = []
+        for suit in suits:
+            for item in value:
+                card = item + " of " + suit
+                deck.append(card)
+        self.deck = deck
+
+    def __repr__(self):
+        length = str(len(self.deck))
+        return f"Deck of {length} cards"
+
+
+    def shuffle_deck(self):
+        from random import shuffle
+        shuffle(self.deck)
+        return self.deck
+
+    def deal_card(self):
+        i = 0
+        print("dealing cards to Player...")
+        while i < 26:
+            for card in self.deck:
+                Deck.user_deck.append(card)
+                self.deck.remove(card)
+                i += 1
+        print("dealing cards to Computer..")
+        for card in self.deck:
+            Deck.computer_deck.append(card)
+        del self.deck[:]
+        print("All cards have been dealt")
+
+
+    def play_war(self):
+        
+        from time import sleep
+
+        user_name = input("Enter a name for Player 1: ")
+        comp_name = input("Enter a name for player 2: ")
+        tie_pile = []
+        turn = 1
+
+        power = {'2': 0, '3': 1, '4': 2, '5': 3, '6': 4, '7': 5, '8': 6,
+         '9': 7, '1': 8, 'J': 9, 'Q': 10, 'K': 11, 'A': 12}
+
+        def add_user_card():
+            print(f"{user_name} beats {comp_name}!\n\n")
+            Deck.user_deck.append(computer_card)
+            Deck.computer_deck.remove(computer_card)
+            reshuffled_card = user_card
+            Deck.user_deck.remove(user_card)
+            Deck.user_deck.append(reshuffled_card)
+        def add_comp_card():
+            print(f"{comp_name} beats {user_name}!\n\n")
+            Deck.computer_deck.append(user_card)
+            Deck.user_deck.remove(user_card)
+            reshuffled_card = computer_card
+            Deck.computer_deck.remove(computer_card)
+            Deck.computer_deck.append(reshuffled_card)
+            
+            
+        while Deck.user_deck and Deck.computer_deck:
+
+            user_card = Deck.user_deck[0]
+            computer_card = Deck.computer_deck[0]
+            
+            print(f"-------(Round {turn})---------")
+            print(f"{user_name} played \n {user_card}")
+
+            print(f"{comp_name} played \n {computer_card}")
+
+
+            if power[user_card[0]] > power[computer_card[0]]:
+                add_user_card()
+            
+
+            elif  power[user_card[0]] < power[computer_card[0]]:
+                add_comp_card()    
+
+            else:
+                print("Its a tie!\n\n")
+            
+                tie_pile.append(user_card)
+                tie_pile.append(computer_card)
+                Deck.user_deck.remove(user_card)
+                Deck.computer_deck.remove(computer_card)
+
+                
+                user_card = Deck.user_deck[0]
+                computer_card = Deck.computer_deck[0]
+                print(f"{user_name} and {comp_name} must draw another card...winner takes all")
+
+                print(f"{user_name} played \n {user_card}")
+
+                print(f"{comp_name} played \n {computer_card}")
+
+                if power[user_card[0]] > power[computer_card[0]]:
+                    add_user_card()
+                    for card in tie_pile:
+                        Deck.user_deck.append(card)
+                        del tie_pile[:]
+            
+                elif  power[user_card[0]] < power[computer_card[0]]:
+                    add_comp_card()
+                    for card in tie_pile:
+                        Deck.computer_deck.append(card)
+                        del tie_pile[:]
+             
+            turn += 1
+##            sleep(1/2)
+
+        if Deck.computer_deck:
+            print(f"{comp_name} wins this game!!")
+        else:
+            print(f"{user_name} wins this game!!")
+
+
+play_again = "y"
+
+while "y" in play_again:
+    deck = Deck()
+    deck.shuffle_deck()
+    deck.deal_card()
+    deck.play_war()
+
+    play_again = input("Play another game of way? (y/n): ")
+
+print("Thanks for playing WAR")
+
+
+
+ 
