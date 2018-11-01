@@ -1,0 +1,95 @@
+#!/usr/bin/python3
+
+
+def decimal_to_base():
+    number = ""
+
+
+    # Created a dictionary, the corresponding number of the modulus will give the value in the dictionary
+    base_num = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8,
+                9: 9, 10: 'a', 11: 'b', 12: 'c', 13: 'd', 14: 'e', 15: 'f',
+                16: 'g', 17: 'h', 18: 'i', 19: 'j', 20: 'k', 21: 'l', 22: 'm',
+                23: 'n', 24: 'o', 25: 'p', 26: 'q', 27: 'r', 28: 's', 29: 't',
+                30: 'u', 31: 'v', 32: 'w', 33: 'x', 34: 'y', 35: 'z'}
+
+
+    # asks for a number from the user, and sets that to the variable number
+    while(not(number.isnumeric())):
+        number = input("What is the decimal to convert? ")
+       
+    tempnumb = int(number)
+
+    # This asks for the user's input, this goes up to a base of 36.
+    base = int(input("What base conversion would you like to do? "))
+
+    base_output = ""
+
+    # This determines the remainder from the number calculated from the base the user selected
+    # Using that remainder value, the remainder value is used as a key to be looked up in the base_num dictionary
+    # It then appends that key's value to the base_output variable, and then tempnumb is d
+    # This loop continues to run until the tempnumber is less than zero
+    while(tempnumb > 0):
+        k = tempnumb % base
+        base_output += str(base_num[k])
+        tempnumb = int(tempnumb / base)
+
+    # prints the base_output to the console 
+    print(base_output)
+
+    
+
+def base_to_decimal():
+    
+    base_num = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': '8', '9': 9, 'a': 10,
+     'b': 11, 'c': 12, 'd': 13, 'e': 14, 'f': 15, 'g': 16, 'h': 17, 'i': 18,
+     'j': 19, 'k': 20, 'l': 21, 'm': 22, 'n': 23, 'o': 24,'p': 25, 'q': 26, 'r': 27,
+     's': 28, 't': 29, 'u': 30, 'v': 31, 'w': 32, 'x': 33, 'y': 34, 'z': 35}
+
+
+    # Asks the user to select the base 
+    base_choose = int(input("What base would you like to convert from? "))
+
+    # Asks the user to enter the number from the selected base, for example if the user selected base 16, they would
+    # enter a value like "4D2"
+    base = input("Select a number you would like to convert to decimal: ")
+
+    user_num = []
+
+    # Takes the user's number, and adds each character to the user_num list as declared above,
+    for char in base:
+        user_num.append(char)
+
+    # Reverses the user_num list 
+    user_num = user_num[::-1]
+
+
+    # Using the current value that the for loop selects, the first step is to take the value and find the correspond
+    # value in the base_num dictionary. Then it uses the base the user chose, multiplies it by the index of the current
+    # character in the for loop, and then multiplies that with the corresponding dictionary value. This answer is then
+    # added to the decimal variable.
+
+    decimal = 0
+    for n in user_num:
+        no = base_num[n]
+        answer = no * (base_choose ** user_num.index(n))
+        decimal += answer
+
+
+    # prints the final decimal value to the console
+    print(decimal)
+   
+
+user_input = None
+
+# User will need to enter 1 or 2, it will execute the corresponding function according to the conditional statements
+while user_input != "n":
+    choice = int(input("If you would like to convert from base to decimal. Enter (1) \n" +
+                   "If you would like to convert from decimal to base. Enter(2) : "))
+
+    if choice == 1:
+        base_to_decimal()
+    elif choice == 2:
+        decimal_to_base()
+
+# If the user enters any value besides "n", the while loop will execute again, otherwise the program will end
+    user_input = input("Would you like to do this again? (y/n): ")
