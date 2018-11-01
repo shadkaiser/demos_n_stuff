@@ -1,0 +1,79 @@
+def number_game():
+    
+    while True:
+        user_input = int(input("Pick a number between 0 - 1024 : "))
+        if user_input >= 1024:
+            print("Pick a lower number")
+            continue
+        elif user_input <= 0:
+            print("Pick a higher number")
+            continue
+        break
+        
+    print("I will be able to guess your number in 10 guesses")
+
+    computer_no_bank = [1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1]
+    computer_no = 0
+    computer_low = 0
+    computer_guess = 0
+    current_no = 0
+    guesses = 0
+
+    i = 0 
+    while True:
+        current_no = computer_no_bank[i]
+        
+        user_answer = input(f"Is your number higher or lower than {current_no}? ")
+        if "l" in user_answer[0]:
+            i += 1
+            guesses += 1 
+            continue
+        else:
+            computer_low =  current_no
+            break
+
+    computer_guess = computer_low
+
+    i = computer_no_bank.index(computer_low)
+    no = 1
+
+    computer_high = computer_no_bank[i - no]
+
+
+    print("Hmm...okay, I think I am getting close")
+
+    computer_guess = computer_low
+    remaining_guesses = computer_no_bank[(i+1):]
+    num = 0 
+
+    while computer_guess != user_input:
+        computer_guess += remaining_guesses[num]
+
+        if computer_guess == user_input:
+            break
+        else:
+            user_answer = input(f"Is your number higher or lower than {computer_guess}? ")
+            if "h" in user_answer[0]:
+                num += 1
+                guesses += 1
+            if "l" in user_answer[0]:
+                computer_guess -= remaining_guesses[num]
+                num += 1
+                guesses += 1 
+            
+    print(f"Your number is {computer_guess}! It took {guesses} guesses")
+            
+        
+
+while True:
+    
+    number_game()
+    user_choice = input("Do you want to play again? ")
+    if "n" in user_choice:
+        break
+print("Thank You for playing")
+        
+
+            
+               
+            
