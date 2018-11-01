@@ -1,0 +1,197 @@
+from time import sleep
+import sys
+
+# Just a feature to add some animation when printing to the console 
+def print_slowly(what_to_print, time=0.005):
+    for char in what_to_print:
+        print(char, end="")
+        sys.stdout.flush()
+        sleep(time)
+
+# Function for generating the key 
+def key_gen():
+    word_scrambled = "DENSTTU"
+    d = {}
+    value = 1
+
+    # Creates a dictionary containing the key-value pair, which would be
+    # letter - assigned value pair, if the letter is already in the dictionary
+    # It will set the letter to be X 
+    for letter in word_scrambled:
+        if letter in d:
+            letter = "X"
+            d[letter] = value
+        else:
+            d[letter] = value
+        value += 1
+
+
+    # Using the word STUDENT, will look in the d dictionary, and find the letter value
+    # assigned with the corresponding letter, it will then add that numeric value to the key string
+    # The end result will give the key that will be used for the encryption 
+    word = "STUDENT"
+    word_replicate = ""
+    key = ""
+
+    for letter in word:
+        if letter in word_replicate:
+            letter = "X"
+            key += str(d[letter])
+        else:
+            word_replicate += letter
+            key += str(d[letter])
+    return key
+
+# Another feature to add some animation when printing to the console, it will create 2 columns, on the left hand side will be the 7-letter word unecrypted, on the right will be the encrypted 
+def create_columns(list_1, list_2):
+    encrypted_and_unencrypted = dict(zip(list_1, list_2))
+    print_slowly("Okay....lets encrypt this\n")
+    for key, value in encrypted_and_unencrypted.items():
+        print(key, value)
+        sleep(1)
+
+# Will string together the song and get rid of special character, and then divide it
+# into 7 letter blocks 
+def combine_and_block(nursery):
+    from time import sleep
+
+    combined = ""
+    alphabet = "abcdefghijklmnopqrstuvwxy0123456789"
+
+    # Only adds the letters from the alphabet string to the combined string
+    # Allows for non alpha numeric values to be removed 
+    for letter in nursery:
+        if letter.lower() in alphabet:
+            combined += letter.upper()
+
+    print("Okay... ")
+    print(combined.title())
+    sleep(2)
+    print(combined)
+    sleep(2)
+
+    print("lets pad it up a bit")
+    print_slowly("adding some extra characters...\n", 0.05)
+
+    # This ensures that later on the string will contain 7 letter blocks
+    # If the string has any remainder after dividing by 7, it adds some "X" to pad the string 
+    while len(combined) % 7 != 0:
+        combined += "X"
+        
+    word = ""
+    sevens = []
+
+    # This breaks the combined string into 7 letter blocks
+    # The enumerate function will map the indicies of each letter in combined, the i refers to the index value
+    # This while loop will keep executing until broken, it will add each letter to the word string, once the word is 7 letters long it will then
+    # append that word to the sevens list, and then reset the word string back to an empty string. This creates 7 letter words that are continually appended to the
+    # sevens list until loop breaks, the sevens list is then returned 
+    
+    while True:
+        for i, letter in enumerate(combined):
+            if len(word) < 7:
+                word += combined[i]
+            else:
+                sevens.append(word)
+                word = ""
+        sevens.append(combined[-7:])
+        break
+
+    return sevens
+
+
+# Will encrypt the 7-letter words 
+def encrypt_blocks(seven_letter_blocks, ecnryption_key):
+
+    words_jumbled = []
+
+    # The encrypted key that is passed in as an argument will be a the string of numeric values generated in the earlier function
+    # The for loop will replace the cipher_word with the letters of the 7-letter word, but given the whatever value the index points to in the encrypted key, that is the
+    # character that will be replaced in the cipher_word
+    # It will then append this cipher word to the words_jumbled list
+    for word in seven_letter_blocks:
+        cipher_word = "1234567"
+        for num, letter in enumerate(word):
+            cipher_word = cipher_word.replace(encrypted_key[num], word[num])
+        words_jumbled.append(cipher_word)
+
+    return words_jumbled
+
+
+
+# This fulfills the same functionality as the encrypt_blocks function, except this time it uses the sorted version of the encrpted keys as the string that will be replaced by the ltters of the encrypted word
+# This will put the word back into order
+# At the end it will combine al the words back into one string, and get rid of the padded X's 
+def unencrypt_blocks(encrypted_key):
+    key = sorted(encrypted_key)
+    words_unjumbled = []
+
+    for word in words_jumbled:
+        non_cipher_word = encrypted_key
+
+        # The enumerate function maps the seven-letter word to the index
+        # Num refers to the index, and it is used as a point of reference on how to replace which index with what in the key
+        for num, letter in enumerate(word):
+            non_cipher_word = non_cipher_word.replace(key[num], word[num])
+        words_unjumbled.append(non_cipher_word)
+
+    original = ""
+
+    for word in words_unjumbled:
+        original += word
+
+    original = original.replace("X", "")
+
+    print_slowly("\n" + original)
+
+
+# This is the default song that is used
+nursery = "Mary had a little lamb, it's fleece as white as snow. \
+Everywhere that Mary went, the lamb was sure to go."
+
+
+user_nursery = input("Enter a song you would like to encrypt: ")
+
+# If the user puts int their own song the program will encrypt that, if not, then it will used the default nursery song
+if user_nursery:
+    print_slowly(user_nursery + "\n")
+    nursery = user_nursery
+else:
+    print("Alright, we will just choose a song for you")
+    print_slowly(nursery + "\n")
+
+# Runs through all the functions stated above, when the function passes a return value, it will save that value to the listed variable, that variable is then passed into the next function as an argument 
+sevens = combine_and_block(nursery)
+encrypted_key = key_gen()
+words_jumbled = encrypt_blocks(sevens, encrypted_key)
+create_columns(sevens, words_jumbled)
+
+# Adds all the encrypted words to one string and then print that string 
+new_nursery = ""
+for word in words_jumbled:
+    new_nursery += word
+
+print("*******Here is your song encrypted**********: \n")
+print_slowly(new_nursery + "\n")
+
+# Prints the normal version of the nursery into one line 
+print("------------Now lets bring it back to normal ... -----------\n")
+words_unjumbled = unencrypt_blocks(encrypted_key)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
