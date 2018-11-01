@@ -1,0 +1,77 @@
+#!/usr/bin/python
+
+
+
+# The subprocess call method allows us to executed the commands in the shell
+# Python3 would use input instead of raw_input
+
+import subprocess
+import optparse
+import re
+
+def get_arguments():
+    # creates an object called parser in the OptionParser class
+    # This will parse the arguments that are passed into the command line
+    parser = optparse.OptionParser()
+
+    # In the parser object, we create instances - the first 2 arguments will give the user the appropriate flags
+    # it will pass those arguments from the command line and save them to the dest
+    parser.add_option("-i", "--interface", dest="interface", help="Interface to change its MAC Address")
+    parser.add_option("-m", "--mac", dest="mac_address", help="New Mac Address that the person wants to use")
+
+    # This will parse the arguments its receives from the user
+    # This will save the options and arguments into a tuple
+    # To access the options, just do options.[name of the option dest]
+    # This will save the options and arguments into a tuple
+    # To access the options, just do options.[name of the option dest]
+    (options, arguments) = parser.parse_args()
+
+    # This condition checks to see if both arguments were entered
+    if not options.interface:
+        parser.error("[-] Please specify and interface, use --help for more info")
+    elif not options.mac_address:
+        parser.error("Please specify a MAC, use --help for more info")
+    return options
+
+def change_mac(inter, mac):
+    # subprocess.call("ifconfig "+ inter + " down", shell=True)
+    # subprocess.call("ifconfig " + inter + " hw ether " + mac, shell=True)
+    # subprocess.call("ifconfig " + inter + " up", shell=True)
+
+    # more secure version of above code
+    # Prevents command chaining
+
+    print("[+] Changing MAC address for {} to {}".format(inter, mac))
+    subprocess.call(["ifconfig", inter, "down"])
+    subprocess.call(["ifconfig", inter, "hw", "ether", mac])
+    subprocess.call(["ifconfig", inter, "up"])
+
+
+def get_current_mac(interface):
+    # The subprocess check output method will display the output of the command passed in
+    ifconfig_result = subprocess.check_output(["ifconfig", interface])
+
+    # The first parameter in re.search is the regex pattern to look for
+    # The second argument is where to look for the regex pattern
+    mac_address_search_result = re.search(r"\w\w:\w\w:\w\w:\w\w:\w\w:\w\w", ifconfig_result)
+
+    # The re.search matches are saved in a group, so we only want to pull the first item from it
+
+    if mac_address_search_result:
+        return mac_address_search_result.group(0)
+    else:
+        print("[-] Could not read MAC address")
+
+
+options = get_arguments()
+current_mac = get_current_mac(options.interface)
+print("Current MAC = " + str(current_mac))
+change_mac(options.interface, options.mac_address)
+
+current_mac = get_current_mac(options.interface)
+if current_mac == options.mac_address:
+    print("[+] MAC address was successfully changed to " + current_mac)
+else:
+    print("[-] MAC address did not get changed.")
+
+
